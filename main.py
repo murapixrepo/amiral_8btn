@@ -431,8 +431,11 @@ class Amiral_8btn(Murapix):
         self.background = pygame.Surface(
                 (self.SCREENRECT.size[0],
                  self.SCREENRECT.size[1]+1)
-                ).convert()
-        self.background.fill((0, 110, 255))
+                ).convert(self._screen)
+        if self.demo:        
+            self.background.fill((0, 110, 255))
+        else:#too bright for the LEDs
+            self.background.fill((0, 0, 0))  
         
         #make the waves
         for (x,y) in itertools.product(range(4,self.width,8),
@@ -492,7 +495,7 @@ class Amiral_8btn(Murapix):
         self.dude_4 = 0
         
         self.background2 = pygame.Surface((self.SCREENRECT.size[0],
-                                           self.SCREENRECT.size[1])).convert()
+                                           self.SCREENRECT.size[1])).convert(self._screen)
         self.background2.fill((0, 0, 0))        
         
         self.font = pygame.font.Font(None, self.height//3)
