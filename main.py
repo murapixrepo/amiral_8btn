@@ -38,6 +38,10 @@ missile_direction = {None: (0, 0), UP: (0, -MISSILE_SPEED), DOWN: (0, MISSILE_SP
 #Scene constants
 INGAME = True #first screen is Ingame
 
+#some colors
+GREY = (90,90,90)
+DARK_GREY = (30,30,30)
+
 
 
 #%% create in game objects
@@ -289,27 +293,70 @@ class ScoreBoard(Obstacles):
         self.image = image
         self.rect = image.get_rect()
         self.rect.center = self.pos
+        self.changeperiod = 4*self.fps#every X seconds
+        self.next_image = self.changeperiod
         
-    def update(self):
-        image = self.image
+        
         color_key = (128,16,0)
         image.fill(color_key)
         image.set_colorkey(color_key)
+        #mast
+        pygame.draw.line(image, DARK_GREY, [6,0], [6,6],1)
+        #flag init
+        self.windy_lines = [[7,0],
+                      [9,2],
+                      [10,1],
+                      [11,1],
+                      [10,2],
+                      [9,3],
+                      [7,4]]
+        pygame.draw.polygon(image, self.admiral.color,self.windy_lines )
+        #score floater body
+        pygame.draw.lines(image, DARK_GREY, True,[
+                                          [0,15],
+                                          [15,15],
+                                          [15,14],
+                                          [7,6],
+                                          [4,6],
+                                          [3,7],
+                                          [0,14],
+                                         ])
+        
+        
+    def update(self):
+        self.next_image += -1
+        image = self.image
+        color_key = (128,16,0)
         until_victory = 8-self.admiral.score
         
         if until_victory <1:
             self.weve_got_a_winner()
             
-        pygame.draw.circle(image,
-                           self.admiral.color,
-                           (9,9),
-                           8,
-                           0)
-        pygame.draw.circle(image,
-                           (20,20,20),
-                           (9,9),
-                           until_victory,
-                           0)
+        
+        #flag flapping
+        if self.next_image==self.changeperiod//2:
+            pygame.draw.polygon(image, color_key, self.windy_lines)
+            pygame.draw.polygon(image, self.admiral.color, [[7,0],
+                                              [11,2],
+                                              [7,4]])
+        elif self.next_image==0:
+            pygame.draw.polygon(image, color_key, [[7,0],
+                                              [11,2],
+                                              [7,4]])
+            pygame.draw.polygon(image, self.admiral.color, self.windy_lines)
+            self.next_image = self.changeperiod
+            
+        
+        
+        #score
+        for i in range(8):
+            if i < self.admiral.score:
+                color = self.admiral.color
+            else:
+                color = GREY
+            
+                
+            pygame.draw.line(image, color, [1+i//2,14-i],[14-i,14-i])
         
         
         super(ScoreBoard,self).update()
